@@ -11,6 +11,7 @@ public class CouponConfiguration : IEntityTypeConfiguration<Coupon>
     builder.Property(entity => entity.Id)
       .HasValueGenerator<VogenIntIdValueGenerator<AppDbContext, Coupon, CouponId>>()
       .HasVogenConversion()
+      .HasSentinel(CouponId.New)
       .IsRequired();
 
     builder.Property(entity => entity.Code)
