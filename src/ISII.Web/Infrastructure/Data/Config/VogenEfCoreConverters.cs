@@ -1,4 +1,5 @@
 using ISII.Web.Domain.CartAggregate;
+using ISII.Web.Domain.CouponAggregate;
 using ISII.Web.Domain.GuestUserAggregate;
 using ISII.Web.Domain.OrderAggregate;
 using ISII.Web.Domain.ProductAggregate;
@@ -14,4 +15,5 @@ namespace ISII.Web.Infrastructure.Data.Config;
 [EfCoreConverter<OrderItemId>]
 [EfCoreConverter<Quantity>]
 [EfCoreConverter<Price>]
+[EfCoreConverter<CouponId>]
 internal partial class VogenEfCoreConverters;
