@@ -51,6 +51,46 @@ Content-Type: application/json
 }
 ### Note: Get order ID from response for future use
 
+# Coupons: ejecutar en este orden y sin reiniciar la API
 
+### Create Coupon (201 Created)
+POST {{MinimalClean_HostAddress}}/coupons
+Content-Type: application/json
 
+{
+  "code": "VERANO10",
+  "discountPercentage": 20,
+  "expirationDate": "2030-12-31T00:00:00"
+}
 
+### Get Coupon By ID (200 OK)
+GET {{MinimalClean_HostAddress}}/coupons/1
+Accept: application/json
+
+### Create Coupon - duplicated code (409 Conflict)
+POST {{MinimalClean_HostAddress}}/coupons
+Content-Type: application/json
+
+{
+  "code": "verano10",
+  "discountPercentage": 15,
+  "expirationDate": "2030-12-31T00:00:00"
+}
+
+### Create Coupon - invalid data (400 Bad Request)
+POST {{MinimalClean_HostAddress}}/coupons
+Content-Type: application/json
+
+{
+  "code": "AB",
+  "discountPercentage": 150,
+  "expirationDate": "2020-01-01T00:00:00"
+}
+
+### Get Coupon By ID - not found (404 Not Found)
+GET {{MinimalClean_HostAddress}}/coupons/999
+Accept: application/json
+
+### Get Coupon By ID - invalid id (400 Bad Request)
+GET {{MinimalClean_HostAddress}}/coupons/0
+Accept: application/json
