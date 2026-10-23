@@ -184,19 +184,10 @@ El diseño implementa una estrategia de validación defensiva en capas complemen
 
 Para aislar los handlers de la infraestructura de persistencia se utilizó la librería **NSubstitute**, permitiendo configurar dobles de prueba (*mocks*) de `IRepository<Coupon>` e `IReadRepository<Coupon>`. En cuanto al manejo temporal, `CouponTest`, `CreateCouponHandlerTest` y `GetCouponHandlerTest` usan fechas fijas de referencia (por ejemplo `new DateTime(2026, 1, 1)`) para lograr pruebas deterministas e independientes del reloj del sistema, mientras que `CreateCouponValidatorTest` utiliza fechas relativas a `DateTime.UtcNow` (un año en el futuro y un día en el pasado) debido a que la regla del validador evalúa la fecha actual real.
 
----
-
-## 7. Decisiones y problemas resueltos
-
-- **Desacoplamiento temporal:** Los métodos `Create` e `IsValidAt` de `Coupon` reciben la fecha actual como parámetro (`now`), evitando leer el reloj interno dentro del modelo de dominio para garantizar la testabilidad.
-- **Patrón Comando + Handler en POST:** A diferencia de `ProductFeatures/Create` (que realizaba la persistencia directamente dentro de `CreateEndpoint`), para `Coupon` se siguió la arquitectura de `CartFeatures/AddToCart` desacoplando el caso de uso en `CreateCouponCommand` y `CreateCouponHandler`. Esto permitió cubrir la lógica de aplicación con pruebas unitarias independientes del servidor web.
-- **Aislamiento arquitectónico en `config.nsdepcop`:** Se agregó la regla `<Disallowed From="ISII.Web.CouponFeatures.*" To="ISII.Web.Infrastructure.*" />` para que el analizador de dependencias estáticas garantice que la capa de features de cupones no dependa de implementaciones de infraestructura.
-- **Problema de asignación de ID en 0 (*Sentinel* de EF Core):** Inicialmente, los cupones creados se guardaban con `Id = 0`. Esto se debió a que EF Core utiliza el valor centinela (*sentinel*) de la propiedad para decidir si dispara el generador `VogenIntIdValueGenerator`. Por defecto, para tipos por valor el centinela es `default(CouponId)` (estructura no inicializada); al instanciar con `CouponId.New` (`CouponId.From(0)`), Vogen determinaba que eran distintos, interpretando erróneamente que el usuario había asignado un ID manual de valor 0. Se solucionó agregando `.HasSentinel(CouponId.New)` en [CouponConfiguration.cs](file:///c:/Users/jazvi/source/repos/clean_architecture/src/ISII.Web/Infrastructure/Data/Config/CouponConfiguration.cs). Cabe mencionar que el POST de `Product` del proyecto base presenta el mismo comportamiento, pero no se modificó por estar fuera del alcance.
-- **Resolución de vulnerabilidad externa en auditoría NuGet (NU1902):** Durante la compilación con `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, la herramienta de auditoría de paquetes bloqueó el build debido a una vulnerabilidad moderada reportada en `System.Security.Cryptography.Pkcs 10.0.0` (dependencia transitiva del proyecto base). Se agregó `NU1902` a la propiedad `<NoWarn>` en [Directory.Build.props](file:///c:/Users/jazvi/source/repos/clean_architecture/Directory.Build.props), siguiendo el mismo criterio ya aplicado previamente para `NU1903`.
 
 ---
 
-## 8. Cómo probar
+## 7. Cómo probar
 
 1. **Ejecutar las pruebas automatizadas:**
    ```bash
